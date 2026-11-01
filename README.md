@@ -533,3 +533,11 @@ Moving from a fuzzy lexical scorer to a hybrid semantic/deterministic check is i
 **1.** In the 1st event, I asked Gemini to analyze my terminal log output from run_eval.py alongside scorer.py to help spot patterns behind why all 5 in-scope test questions were registering as fail despite retrieving the correct ground-truth chunks and generating factually accurate answers. Gemini identified that scorer.py was executing a rigid substring check (expects.lower().strip() in answer.lower()), which flagged responses as failures whenever the LLM placed citations at the end of sentences or rephrased the text. Instead of accepting the initial surface-level diagnosis that my generation or retrieval stages were broken, I used this pattern analysis to pinpoint the issue strictly within the test harness evaluation logic, preventing unnecessary and counterproductive modifications to my chunking and embedding setup.
 
 **2.** In the 2nd event, I asked AI to generate a refactored judge() function using the rapidfuzz library to implement fuzzy string scoring. AI initially returned a snippet using fuzz.partial_ratio with an 80% cutoff; however, because partial_ratio evaluates contiguous character blocks, it still penalized responses where source citations were moved from the beginning of the string to the end. I caught this limitation and manually adjusted the code to use fuzz.token_set_ratio with a 75% cutoff instead, allowing the scorer to isolate matching key tokens regardless of sentence structure or word order while keeping string type-validation guardrails intact.
+
+---
+
+📖 **How to run this project: [RUNNING.md](RUNNING.md)**
+
+🧭 **Full project diary, decisions, and architecture reference: [PROJECT_WALKTHROUGH.md](PROJECT_WALKTHROUGH.md)**
+
+🛠️ **Full environment setup guide: [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)**
