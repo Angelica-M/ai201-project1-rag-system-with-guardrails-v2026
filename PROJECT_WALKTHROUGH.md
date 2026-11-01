@@ -1,4 +1,4 @@
-# The Unofficial Guide — Project Walkthrough
+# RAG System — Project Walkthrough
 
 A combined diary and manual for this repository, written for a reader with no
 prior context on it. This file narrates what was built and tested across Unit
@@ -397,42 +397,35 @@ config, with `chromadb==0.6.3` installed (matching the `>=0.6,<0.7` pin).
 This is local machine state, not a defect in committed code — full detail and
 the practical fix are in `ENVIRONMENT_SETUP.md` §5.
 
-### Lessons
+### Lessons I Learned from This Project
 
-1. **A passing `test.py` is a floor, not a guarantee.** It verifies the
-   packages `requirements.txt` pins, the key, and one live model call — it
-   never imports `chunker.py` or `scorer.py`, so a break in either (Findings
-   2, 3, 6) is invisible to it. Reason: `test.py`'s own design only walks the
-   dependency list it knows about.
-2. **Commenting out a working function to try a new one, in the same file,
-   without deleting the old one, is how dead code and live code silently swap
-   roles.** Reason: Finding 2 — the hand-rolled splitter that produced every
-   real result in this document is one `#` away from running again, but
-   nothing marks which of the three bodies in `chunker.py` is actually live
-   except which one isn't wrapped in triple quotes.
-3. **A verdict and the evidence under it can quietly diverge once they're
-   produced by different processes — one automated, one by eye.** Reason:
-   Finding 5 — "MET" came from reading source filenames by hand; "fail" came
-   from `judge()`. Both are real observations about the same run; neither
-   alone is the full picture, and the README never says so.
-4. **A one-word typo in a keyword argument fails loudly (`TypeError`), which
-   is the easy case.** Reason: Finding 3 is trivial to fix once noticed
-   because Python refuses to run it at all — contrast with Finding 2, where
-   the code runs for a while (loads 88 documents) before failing, and would
-   silently produce the *wrong* chunks rather than an error if the type
-   mismatch happened to be compatible.
-5. **A `--label` flag only records what you type, not what actually
-   happened.** Reason: Finding 7 — the "after" run has real, correct,
-   verifiable data; it is simply filed under the wrong name because the
-   command line doesn't know what the data represents, only what string
-   followed `--label`.
-6. **An ad hoc `pip install` during development that never gets added to
-   `requirements.txt` becomes invisible the next time the environment is
-   rebuilt from scratch.** Reason: Finding 6 — the code that depends on
-   `langchain-text-splitters` and `rapidfuzz` was written and, at some point,
-   actually run (the Unit 2 results needed `rapidfuzz`'s `token_set_ratio` to
-   be produced), but nothing captured that dependency for the next person —
-   or the next `pip install -r requirements.txt` — to pick up.
+1. **Commenting out a working function instead of deleting it doesn't protect
+   me from losing it — it just means both versions sit in the same file, and
+   nothing marks which one is actually live except which one isn't wrapped in
+   a docstring.** The hand-rolled splitter that produced every real result in
+   this project (Finding 2) is one `#` away from running again, and nothing in
+   my own testing ever told me I'd stopped running it.
+2. **A passing `test.py` told me less than I thought it did.** It only checks
+   the packages pinned in `requirements.txt`, the key, and one model call — it
+   never imports `chunker.py` or `scorer.py`, so I had no automated signal
+   that either one was broken (Findings 2, 3, 6).
+3. **A typo that crashes loudly is the easy failure to catch.** The `somurce`
+   typo (Finding 3) is trivial to fix once I see it, because Python refuses to
+   run at all. A type mismatch compatible enough to actually execute (Finding
+   2) is more dangerous — it would have silently produced the wrong chunks
+   instead of an error.
+4. **A verdict I write by reading output myself and a verdict a script
+   computes can quietly disagree, and I won't notice unless I put them side by
+   side.** My Criterion 1 "MET" came from reading which source files got
+   retrieved; the `fail` lines printed directly under it came from `judge()`
+   checking something else entirely (Finding 5).
+5. **Installing a package mid-project without adding it to `requirements.txt`
+   means the next environment rebuild just breaks, with nothing explaining
+   why it used to work.** `langchain-text-splitters` and `rapidfuzz` both got
+   used this way (Finding 6).
+6. **A `--label` flag only records the word I typed, not what the run
+   actually was.** I relabeled an "after" run as "before" just by reusing the
+   same flag value instead of updating it (Finding 7).
 
 ---
 
