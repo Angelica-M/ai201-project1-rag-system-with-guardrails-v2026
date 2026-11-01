@@ -18,7 +18,7 @@ Retrieval-Augmented Generation (RAG) is the architecture behind AI systems
 that answer questions about specific material instead of from a model's own
 memory: the system retrieves relevant source text *before* the model writes
 anything, which is what keeps answers grounded instead of confidently
-invented. Unit 1 has students build such a system — "The Unofficial Guide," a
+invented. Unit 1 has students build such a system — "RAG System", a
 searchable knowledge base over informal, real campus information — one
 pipeline stage at a time, replacing a deliberately plain starter piece by
 piece so the effect of each decision is visible on its own.
@@ -52,7 +52,7 @@ either way — including if it didn't help.
 
 ## 2. Project Title, Problem, Goals, and Architecture
 
-### The Unofficial Guide
+### RAG System
 
 **What it does.** A command-line RAG system that answers practical questions
 about student life by retrieving from a chosen corpus of short, informal
